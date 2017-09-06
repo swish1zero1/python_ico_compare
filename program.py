@@ -26,7 +26,10 @@ def get_historical_data(coin):
 
 
 def average_opening_price(number_days, df):
-    df = df[df.loc[:, 'Market Cap'] != '-']  # Remove Null Market Caps
+    try:
+        df = df[df.loc[:, 'Market Cap'] != '-']  # Remove Null Market Caps
+    except TypeError as te:
+        print(te)
     return df.iloc[-number_days:, :]['Open'].mean()
 
 
@@ -54,8 +57,21 @@ def check_price_decrease(aop_list_tuple):
             print('Day {}: {} the price was higher than ICO: {}'.format(i, aop_list_tuple[1][i], aop_list_tuple[0]))
             temp_int = i
             break
+
     for i in range(temp_int, len(aop_list_tuple[1])):
-        if (2*aop_list_tuple[0]) < aop_list_tuple[1][i]:
+        if aop_list_tuple[0] > aop_list_tuple[1][i]:
+            print('Day {}: {} the price went lower than ICO again'.format(i, aop_list_tuple[1][i]))
+            temp_int = i
+            break
+
+    # for i in range(temp_int, len(aop_list_tuple[1])):
+    #     if aop_list_tuple[0] < aop_list_tuple[1][i]:
+    #         print('Day {}: {} the price went higher than ICO'.format(i, aop_list_tuple[1][i]))
+    #         temp_int = i
+    #         break
+
+    for i in range(temp_int, len(aop_list_tuple[1])):
+        if (2 * aop_list_tuple[0]) < aop_list_tuple[1][i]:
             print('Day {}: {} the price was more than double the ICO'.format(i, aop_list_tuple[1][i]))
             temp_int = i
             break
@@ -71,18 +87,19 @@ def check_price_decrease(aop_list_tuple):
             break
 
 
-
-# the price decreased
-# it took such and such days for it to go above ico price
-#
 def main():
-    coin = 'waves'
-    df = get_historical_data(coin)
-    days_alive = df.shape[0]
-    number_days = 3
-    aop_list_tuple = print_alive_prices(coin, days_alive, number_days, df)
-    check_price_decrease(aop_list_tuple)
+    re = requests.get('https://api.coinmarketcap.com/v1/ticker/?limit=20')
 
+    for item in re.json():
+        coin = item['id']
+        print(coin)
+        # # coin = 'waves'
+        df = get_historical_data(coin)
+        days_alive = df.shape[0]
+        number_days = 10
+        aop_list_tuple = print_alive_prices(coin, days_alive, number_days, df)
+        check_price_decrease(aop_list_tuple)
+        print('------------------------------')
 
 if __name__ == '__main__':
     main()
