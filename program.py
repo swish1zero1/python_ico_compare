@@ -25,15 +25,30 @@ def get_historical_data(coin):
     return df
 
 
-def average_opening_price(number_first_days, coin):
-    df = get_historical_data(coin)
-    return df.iloc[-number_first_days:, :]['Open'].mean()
+def average_opening_price(number_days, df):
+    df = df[df.loc[:, 'Market Cap'] != '-']  # Remove Null Market Caps
+    return df.iloc[-number_days:, :]['Open'].mean()
+
+
+def opening_price(number_days, df):
+    df = df[df.loc[:, 'Market Cap'] != '-']  # Remove Null Market Caps
+    return df.iloc[-number_days, :]['Open'].mean()
+
+
+def print_alive_prices(coin, days_alive, number_days, df):
+    print('{} has been alive for {} days.'.format(coin, days_alive))
+    print('First {} days average opening price: '.format(number_days) +
+          '{}'.format(average_opening_price(number_days, df)))
+    for i in range(30, days_alive, 30):
+        print('Price at {} days: {}'.format(i, opening_price(i, df)))
 
 
 def main():
     coin = 'ethereum'
-    number_first_days = 3
-    print(average_opening_price(number_first_days, coin))
+    df = get_historical_data(coin)
+    days_alive = df.shape[0]
+    number_days = 3
+    print_alive_prices(coin, days_alive, number_days, df)
 
 if __name__ == '__main__':
     main()
