@@ -21,12 +21,15 @@ def print_coin_or_coins(coin):
 def get_historical_data(coin):
     url = 'https://coinmarketcap.com/currencies/{}/historical-data/?start=20000428&end=21000906'.format(coin)
     test_pandas = pd.read_html(url)
+    if test_pandas[0].shape[0] < 40:  # check if coin is 'asset' and url redirected
+        url = 'https://coinmarketcap.com/assets/{}/historical-data/?start=19760101&end=21000101'.format(coin)
+        test_pandas = pd.read_html(url)
     df = test_pandas[0]
     return df
 
 
 def average_opening_price(number_days, df):
-    # df = df[df.loc[:, 'Market Cap'] != '-']  # Remove Null Market Caps
+    df = df[df.loc[:, 'Market Cap'] != '-']  # Remove Null Market Caps
     return df.iloc[-number_days:, :]['Open'].mean()
 
 
@@ -72,7 +75,7 @@ def check_price_decrease(aop_list_tuple):
 
 
 def main():
-    coin = 'ethereum'
+    coin = 'funfair'
     df = get_historical_data(coin)
     days_alive = df.shape[0]
     number_days = 10
