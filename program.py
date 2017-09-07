@@ -19,14 +19,14 @@ def print_coin_or_coins(coin):
 
 
 def get_historical_data(coin):
-    url = 'https://coinmarketcap.com/currencies/{}/historical-data/?start=19760101&end=21000101'.format(coin)
+    url = 'https://coinmarketcap.com/currencies/{}/historical-data/?start=20000428&end=21000906'.format(coin)
     test_pandas = pd.read_html(url)
     df = test_pandas[0]
     return df
 
 
 def average_opening_price(number_days, df):
-    df = df[df.loc[:, 'Market Cap'] != '-']  # Remove Null Market Caps
+    # df = df[df.loc[:, 'Market Cap'] != '-']  # Remove Null Market Caps
     return df.iloc[-number_days:, :]['Open'].mean()
 
 
@@ -55,7 +55,7 @@ def check_price_decrease(aop_list_tuple):
             temp_int = i
             break
     for i in range(temp_int, len(aop_list_tuple[1])):
-        if (2*aop_list_tuple[0]) < aop_list_tuple[1][i]:
+        if (2 * aop_list_tuple[0]) < aop_list_tuple[1][i]:
             print('Day {}: {} the price was more than double the ICO'.format(i, aop_list_tuple[1][i]))
             temp_int = i
             break
@@ -71,15 +71,11 @@ def check_price_decrease(aop_list_tuple):
             break
 
 
-
-# the price decreased
-# it took such and such days for it to go above ico price
-#
 def main():
-    coin = 'waves'
+    coin = 'ethereum'
     df = get_historical_data(coin)
     days_alive = df.shape[0]
-    number_days = 3
+    number_days = 10
     aop_list_tuple = print_alive_prices(coin, days_alive, number_days, df)
     check_price_decrease(aop_list_tuple)
 
